@@ -1,0 +1,2157 @@
+ <!-- Подключение шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <!-- HEADER: иконки Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!--
+      UI-библиотеки (документация / стек для будущей сборки):
+      • HeroUI — https://www.heroui.com/docs/react/getting-started/quick-start (React 19+, Tailwind v4, npm)
+      • Magic UI — https://magicui.design/docs (React / shadcn-стек, npm)
+      • UI/UX Pro Max — методология и чеклисты в Cursor (Agent Skill), не npm-пакет.
+      Текущая страница: статический HTML + Tailwind CDN — компоненты HeroUI/Magic UI сюда не импортируются без Vite/React.
+      Ниже в :root заданы токены в духе этих систем; карточки услуг — минималистичный редакционный блок в #services.
+    -->
+
+    <!-- HEADER: Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HEADER: конфиг Tailwind (должен быть рядом с подключением Tailwind) -->
+    <script>
+        tailwind.config = {
+            important: true,
+            theme: {
+                extend: {
+                    colors: {
+                        brandOrange: '#FF5A00',
+                        brandGreen: '#81b92c',
+                        textGray: '#b3b3b3',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        unbounded: ['Unbounded', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+	
+	<body>
+	  <style>
+        /* === ОБЩИЕ СТИЛИ И СТЕКЛЯННЫЙ ИНТЕРФЕЙС (iOS Style) === */
+        :root {
+            --anim-speed: 0.3s;
+            --ui-ease: cubic-bezier(0.22, 1, 0.36, 1);
+            /* Токены в духе HeroUI / shadcn / Magic UI (для статической вёрстки) */
+            --ui-radius-lg: 1.125rem;
+            --ui-radius-xl: 1.25rem;
+            --ui-border: rgba(255, 255, 255, 0.1);
+            --ui-border-subtle: rgba(255, 255, 255, 0.07);
+            --ui-surface: rgba(255, 255, 255, 0.035);
+            --ui-surface-elevated: rgba(255, 255, 255, 0.055);
+            --ui-muted: rgba(255, 255, 255, 0.62);
+            --ui-foreground: rgba(255, 255, 255, 0.94);
+            --ui-primary: #ff5a00;
+            --ui-primary-hover: #e65200;
+            --ui-shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 40px -28px rgba(0, 0, 0, 0.65);
+            --ui-shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 18px 48px -24px rgba(0, 0, 0, 0.72);
+        }
+
+        body {
+            /* Установка кастомного фона */
+            background-color: #000;
+            background-image: url('https://m-files.cdn1.cc/lpfile/8/5/7/85777cfda0622e336542ae4b14fd92c6.png');
+            background-repeat: repeat;
+            background-attachment: fixed;
+            
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* Защита от перекрашивания ссылок конструктором */
+        a, a:hover, a:focus, a:visited, a:active {
+            text-decoration: none !important;
+            outline: none !important;
+        }
+
+        /* Скроллбар */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        /* Утилиты Glassmorphism (Стекло) */
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all var(--anim-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* Карточки услуг: минимализм; иконка .service-card-float — единственный «вынесенный» элемент */
+        #services .service-card {
+            overflow: visible;
+            isolation: isolate;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            background: rgba(12, 12, 12, 0.55);
+            box-shadow: var(--ui-shadow-card);
+            transform: none !important;
+        }
+
+        #services .service-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            background: linear-gradient(165deg, rgba(255, 255, 255, 0.03) 0%, transparent 42%);
+            opacity: 1;
+            transition: opacity var(--anim-speed) ease;
+        }
+
+        #services .service-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 3;
+            padding: 1px;
+            background: conic-gradient(
+                from var(--svc-border-angle, 0deg),
+                var(--svc-accent-1) 0deg,
+                var(--svc-accent-2) 140deg,
+                rgba(255, 255, 255, 0.28) 235deg,
+                var(--svc-accent-1) 360deg
+            );
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity var(--anim-speed) ease;
+            will-change: background;
+        }
+
+        /* Кастомизируемые акценты карточек услуг:
+           1) На карточку ставим data-hover="имя-акцента"
+           2) Ниже добавляем блок #services .service-card[data-hover="..."] { --svc-accent-1: ...; --svc-accent-2: ...; }
+           3) Для однотонного акцента можно указать одинаковые цвета в --svc-accent-1/2
+        */
+        #services .service-card {
+            --svc-accent-1: #81b92c;
+            --svc-accent-2: #b8f36b;
+            --svc-accent-rgb: 129, 185, 44;
+        }
+
+        #services .service-card[data-hover="green"] {
+            --svc-accent-1: #72c24a;
+            --svc-accent-2: #b3f56d;
+            --svc-accent-rgb: 114, 194, 74;
+        }
+
+        #services .service-card[data-hover="pink-cyan"] {
+            --svc-accent-1: #ef2774;
+            --svc-accent-2: #0268e2;
+            --svc-accent-rgb: 255, 94, 189;
+        }
+
+        #services .service-card[data-hover="orange"] {
+            --svc-accent-1: #f54000;
+            --svc-accent-2: #fd8446;
+            --svc-accent-rgb: 255, 106, 18;
+        }
+
+        #services .service-card[data-hover="red-yellow"] {
+            --svc-accent-1: #ff4545;
+            --svc-accent-2: #ffcf3e;
+            --svc-accent-rgb: 255, 85, 70;
+        }
+
+        #services .service-card[data-hover="yellow"] {
+            --svc-accent-1: #ffd638;
+            --svc-accent-2: #fff08a;
+            --svc-accent-rgb: 255, 214, 56;
+        }
+
+        #services .service-card[data-hover="yellow-white"] {
+            --svc-accent-1: #ffe066;
+            --svc-accent-2: #ffffff;
+            --svc-accent-rgb: 255, 224, 102;
+        }
+
+        #services .service-card[data-hover="cyan-blue"] {
+            --svc-accent-1: #4be1ff;
+            --svc-accent-2: #3a6dff;
+            --svc-accent-rgb: 75, 205, 255;
+        }
+
+        #services .service-card[data-hover="red-white"] {
+            --svc-accent-1: #ff4c4c;
+            --svc-accent-2: #ffffff;
+            --svc-accent-rgb: 255, 76, 76;
+        }
+
+        #services .service-card:hover {
+            border-color: color-mix(in srgb, var(--svc-accent-1) 50%, rgba(255, 255, 255, 0.24));
+            background: rgba(18, 18, 18, 0.62);
+            box-shadow: var(--ui-shadow-card-hover);
+        }
+
+        #services .service-card:hover::after {
+            opacity: 0.95;
+            animation: service-accent-spin 3.8s linear infinite;
+        }
+
+        @property --svc-border-angle {
+            syntax: "<angle>";
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes service-accent-spin {
+            to {
+                --svc-border-angle: 360deg;
+            }
+        }
+
+        /* Индекс — крупный фон справа снизу, под текстом */
+        #services .service-card-index {
+            position: absolute;
+            left: auto;
+            right: 0.45rem;
+            bottom: 0.35rem;
+            top: auto;
+            z-index: 4;
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(3.25rem, 16vw, 5.75rem);
+            font-weight: 300;
+            line-height: 0.82;
+            letter-spacing: -0.08em;
+            color: rgba(255, 255, 255, 0.038);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-index {
+                right: 0.55rem;
+                bottom: 0.4rem;
+                font-size: clamp(3.5rem, 10vw, 5.5rem);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #services .service-card-index {
+                right: 0.6rem;
+                bottom: 0.45rem;
+            }
+        }
+
+        #services .service-card-float {
+            position: absolute;
+            z-index: 35;
+            top: -2.45rem;
+            right: -0.1rem;
+            width: 92px;
+            height: 92px;
+            pointer-events: none;
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-float {
+                top: -2.65rem;
+                right: -0.2rem;
+                width: 102px;
+                height: 102px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #services .service-card-float {
+                top: -2.75rem;
+                right: -0.35rem;
+                width: 112px;
+                height: 112px;
+            }
+        }
+
+        #services .service-card-float img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.55));
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+        }
+
+        #services .service-card:hover .service-card-float img {
+            transform: scale(1.05) translateY(-4px);
+            filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.58));
+        }
+
+        #services .service-card-top {
+            position: relative;
+            z-index: 21;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 0.75rem;
+            min-height: 0;
+            padding-right: 5.25rem;
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-top {
+                padding-right: 5.75rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #services .service-card-top {
+                padding-right: 6rem;
+            }
+        }
+
+        #services .service-card-tag {
+            display: block;
+            max-width: 11rem;
+            padding-top: 0.15rem;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            line-height: 1.35;
+            color: rgba(255, 255, 255, 0.38);
+        }
+
+        #services .service-card .service-card-tag {
+            color: color-mix(in srgb, var(--svc-accent-1) 62%, rgba(255, 255, 255, 28%));
+        }
+
+        #services .service-card-inner {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            gap: 0.65rem;
+            padding-top: 0.35rem;
+            padding-right: 4.75rem;
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-inner {
+                padding-right: 5.25rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #services .service-card-inner {
+                padding-right: 5.5rem;
+            }
+        }
+
+        #services .service-card-title {
+            margin: 0 !important;
+            width: 100%;
+            max-width: none;
+            font-size: 0.9375rem;
+            line-height: 1.35;
+            letter-spacing: -0.01em;
+            font-weight: 600;
+            text-transform: none;
+            color: rgba(255, 255, 255, 0.96);
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-title {
+                font-size: 1.0625rem;
+                line-height: 1.32;
+            }
+        }
+
+        #services .service-card-price {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.35rem 0.5rem;
+            margin: 0;
+            padding: 0;
+            align-self: flex-start;
+            border-radius: 0;
+            border: none;
+            border-left: 2px solid rgba(255, 255, 255, 0.12);
+            padding-left: 0.65rem;
+            background: none;
+            box-shadow: none;
+        }
+
+        #services .service-card .service-card-price {
+            border-left-color: color-mix(in srgb, var(--svc-accent-1) 65%, rgba(255, 255, 255, 20%));
+        }
+
+        #services .service-card-price-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.36);
+        }
+
+        #services .service-card-price-value {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-price-value {
+                font-size: 0.875rem;
+            }
+        }
+
+        #services .service-card-copy {
+            flex: 1 1 auto;
+            margin: 0;
+            padding: 0.75rem 0 0;
+            font-size: 0.8125rem;
+            line-height: 1.65;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.55);
+            border: none;
+            border-radius: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            background: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        @media (min-width: 640px) {
+            #services .service-card-copy {
+                font-size: 0.84375rem;
+                padding-top: 0.85rem;
+            }
+        }
+
+        #services .service-card-list {
+            flex: 1 1 auto;
+            margin: 0;
+            padding: 0.65rem 0 0;
+            border-radius: 0;
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            box-shadow: none;
+        }
+
+        #services .service-card-list li {
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        #services .service-card-list li:last-child {
+            border-bottom: 0 !important;
+        }
+
+        #services .service-card-list .service-card-list-mark {
+            color: #f74200;
+            font-weight: 500;
+            font-size: 0.7rem;
+            margin-top: 0.2rem;
+        }
+
+        #services .service-card-cta {
+            position: relative;
+            z-index: 22;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            width: 100%;
+            margin-top: auto;
+            flex-shrink: 0;
+            padding: 0.62rem 1rem;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.82);
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: transparent;
+            box-shadow: none;
+            transition:
+                background var(--anim-speed) ease,
+                border-color var(--anim-speed) ease,
+                color var(--anim-speed) ease;
+        }
+
+        #services .service-card-cta i {
+            font-size: 0.95rem;
+            opacity: 0.65;
+            transition: transform var(--anim-speed) ease, opacity var(--anim-speed) ease;
+        }
+
+        #services .service-card-cta:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+        }
+
+        #services .service-card-cta:hover i {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+
+        #services .service-card-cta:focus-visible {
+            outline: 1px solid rgba(255, 255, 255, 0.35);
+            outline-offset: 2px;
+        }
+
+        #services .service-card .service-card-cta:hover {
+            border-color: color-mix(in srgb, var(--svc-accent-1) 72%, rgba(255, 255, 255, 25%));
+            background:
+                linear-gradient(115deg,
+                    color-mix(in srgb, var(--svc-accent-1) 22%, transparent) 0%,
+                    color-mix(in srgb, var(--svc-accent-2) 16%, transparent) 100%);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: background var(--anim-speed) var(--ui-ease), border-color var(--anim-speed) var(--ui-ease), transform var(--anim-speed) var(--ui-ease), box-shadow var(--anim-speed) var(--ui-ease);
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.11);
+            border-color: rgba(255, 255, 255, 0.22);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero-primary-btn,
+        .hero-secondary-btn {
+            border-radius: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            transition: transform var(--anim-speed) var(--ui-ease), box-shadow var(--anim-speed) var(--ui-ease), background var(--anim-speed) var(--ui-ease), border-color var(--anim-speed) var(--ui-ease);
+        }
+
+        .hero-primary-btn {
+            background: linear-gradient(145deg, #ff6a1f, #ff5a00);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 8px 24px -10px rgba(255, 90, 0, 0.65);
+        }
+
+        .hero-primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 30px -10px rgba(255, 90, 0, 0.72);
+            background: linear-gradient(145deg, #ff7632, #ff5a00);
+        }
+
+        .hero-secondary-btn {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .hero-secondary-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.55);
+        }
+
+        /* Стили для полей ввода (Максимально жестко задаем темный цвет и размеры, чтобы перебить LPMotor) */
+        html body .custom-input,
+        html body #contact-popup .custom-input,
+        html body form.tg-form .custom-input {
+            background: #111111 !important;
+            background-color: #111111 !important;
+            border: 1px solid #2a2a2a !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: all var(--anim-speed) ease;
+            box-shadow: none !important;
+            border-radius: 12px !important;
+            padding: 16px 20px !important; /* Жестко фиксируем внутренние отступы */
+            font-size: 15px !important; /* Размер шрифта */
+            line-height: 1.4 !important;
+        }
+
+        /* Принудительная высота только для input (однострочные) */
+        html body input.custom-input,
+        html body #contact-popup input.custom-input,
+        html body form.tg-form input.custom-input {
+            height: 60px !important;
+            min-height: 60px !important;
+            max-height: 60px !important;
+        }
+
+        /* Принудительная высота для textarea (многострочные) */
+        html body textarea.custom-input,
+        html body #contact-popup textarea.custom-input,
+        html body form.tg-form textarea.custom-input {
+            height: 120px !important;
+            min-height: 120px !important;
+        }
+
+        html body .custom-input:focus,
+        html body #contact-popup .custom-input:focus,
+        html body form.tg-form .custom-input:focus {
+            background: #161616 !important;
+            background-color: #161616 !important;
+            border-color: #FF5A00 !important;
+            outline: none !important;
+            box-shadow: inset 0 0 0 1px #FF5A00 !important;
+        }
+        
+        html body .custom-input::placeholder,
+        html body #contact-popup .custom-input::placeholder {
+            color: #777777 !important;
+            -webkit-text-fill-color: #777777 !important;
+        }
+        
+        /* Убираем белый фон автозаполнения (Chrome/Safari) */
+        html body .custom-input:-webkit-autofill,
+        html body .custom-input:-webkit-autofill:hover, 
+        html body .custom-input:-webkit-autofill:focus, 
+        html body .custom-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #111111 inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Эффект постоянного "Эхо" для оранжевых кнопок */
+        @keyframes echo-orange {
+            0% { box-shadow: 0 4px 15px rgba(255, 90, 0, 0.4), 0 0 0 0 rgba(255, 90, 0, 0.6); }
+            70% { box-shadow: 0 4px 15px rgba(255, 90, 0, 0.4), 0 0 0 15px rgba(255, 90, 0, 0); }
+            100% { box-shadow: 0 4px 15px rgba(255, 90, 0, 0.4), 0 0 0 0 rgba(255, 90, 0, 0); }
+        }
+        .animate-echo-orange {
+            animation: echo-orange 2s infinite;
+        }
+
+        /* Эффект постоянного "Эхо" для серых/стеклянных кнопок */
+        @keyframes echo-gray {
+            0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 255, 255, 0.2); }
+            70% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        .animate-echo-gray {
+            animation: echo-gray 2.5s infinite;
+        }
+
+        .glow-orange {
+            box-shadow: 0 0 20px rgba(255, 90, 0, 0.3);
+        }
+        .glow-orange:hover {
+            box-shadow: 0 0 30px rgba(255, 90, 0, 0.5);
+        }
+
+        /* Управление скроллом при открытом попапе */
+        body.popup-open {
+            overflow: hidden;
+        }
+
+        /* Минималистичный футер в духе MagicUI */
+        .brand-footer {
+            position: relative;
+            background: #0b0b0c;
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            overflow: hidden;
+        }
+
+        .brand-footer::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+            mask-image: radial-gradient(circle at 50% 20%, rgba(0, 0, 0, 0.85), transparent 75%);
+            pointer-events: none;
+        }
+
+        .footer-shell {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 999px;
+            padding: 7px 14px;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .footer-title {
+            font-family: 'Unbounded', sans-serif;
+            letter-spacing: 0.015em;
+        }
+
+        .footer-link {
+            position: relative;
+            color: rgba(255, 255, 255, 0.74);
+            transition: color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            opacity: 0.95;
+        }
+
+        .footer-link-icon {
+            width: 1em;
+            height: 1em;
+            flex-shrink: 0;
+            object-fit: contain;
+        }
+
+        .footer-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, #FF5A00, rgba(255, 255, 255, 0.5));
+            transition: width 0.25s ease;
+        }
+
+        .footer-link:hover {
+            color: #ffffff;
+            transform: translateX(3px);
+            opacity: 1;
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        .footer-typewriter-wrap {
+            display: block;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .footer-typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 0.85em;
+            margin-left: 3px;
+            vertical-align: -0.08em;
+            background: rgba(255, 255, 255, 0.9);
+            animation: footer-cursor-blink 0.95s step-end infinite;
+        }
+
+        @keyframes footer-cursor-blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .footer-typewriter-cursor {
+                animation: none;
+                opacity: 0.85;
+            }
+        }
+
+        .blog-cta {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.02);
+            transition: transform var(--anim-speed) var(--ui-ease), border-color var(--anim-speed) var(--ui-ease), background var(--anim-speed) var(--ui-ease);
+        }
+
+        .blog-cta::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.2) 50%, transparent 85%);
+            transform: translateX(-120%);
+            transition: transform 0.7s ease;
+        }
+
+        .blog-cta:hover::before {
+            transform: translateX(120%);
+        }
+
+        .blog-cta:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .policy-btn {
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.02);
+            transition: transform var(--anim-speed) var(--ui-ease), border-color var(--anim-speed) var(--ui-ease), background var(--anim-speed) var(--ui-ease);
+        }
+
+        .policy-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            right: 14px;
+            bottom: 18px;
+            z-index: 115;
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(15, 15, 16, 0.8);
+            color: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+        }
+
+        .scroll-top-btn i {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .scroll-top-btn.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .scroll-top-btn:hover {
+            background: rgba(255, 90, 0, 0.16);
+            border-color: rgba(255, 90, 0, 0.54);
+        }
+
+        .scroll-top-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+
+        @media (min-width: 640px) {
+            .scroll-top-btn {
+                right: 22px;
+                bottom: 24px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.45; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        .pulse-dot {
+            animation: pulse-dot 2.2s ease-in-out infinite;
+        }
+
+        /* 3D куб для hero */
+        .hero-cube-scene {
+            width: 480px;
+            height: 480px;
+            perspective: 1050px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .hero-cube-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        .hero-cube {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .hero-cube-face {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border: 1.8px solid rgba(255, 255, 255, 0.98);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.01));
+            background-clip: padding-box;
+            box-shadow:
+                inset 0 0 30px rgba(255, 255, 255, 0.07),
+                0 0 0 0.6px rgba(255, 255, 255, 0.78);
+            backface-visibility: visible;
+        }
+
+        .hero-cube-face.front  { transform: translateZ(130.5px); }
+        .hero-cube-face.back   { transform: rotateY(180deg) translateZ(130.5px); }
+        .hero-cube-face.right  { transform: rotateY(90deg) translateZ(130.5px); }
+        .hero-cube-face.left   { transform: rotateY(-90deg) translateZ(130.5px); }
+        .hero-cube-face.top    { transform: rotateX(90deg) translateZ(130.5px); }
+        .hero-cube-face.bottom { transform: rotateX(-90deg) translateZ(130.5px); }
+
+
+        .hero-cube-glow {
+            position: absolute;
+            width: 330px;
+            height: 330px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+            filter: blur(26px);
+            animation: hero-cube-pulse 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .hero-cube-services {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hero-cube-service-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 1px;
+            width: 0;
+            transform-origin: left center;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.25));
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+            opacity: 0.9;
+        }
+
+        .hero-cube-service-chip {
+            position: absolute;
+            left: var(--chip-left, 50%);
+            top: var(--chip-top, 50%);
+            transform: translate(
+                calc(-50% + var(--float-x, 0px)),
+                calc(-50% + var(--float-y, 0px))
+            );
+            max-width: 190px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(26, 26, 30, 0.62);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 11px;
+            letter-spacing: 0.02em;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.1;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+        }
+
+        .hero-cube-service-text {
+            display: inline;
+        }
+
+        .hero-cube-service-cursor {
+            display: inline-block;
+            width: 1px;
+            height: 0.9em;
+            margin-left: 2px;
+            vertical-align: -0.1em;
+            background: rgba(255, 255, 255, 0.9);
+            animation: hero-cube-cursor-blink 0.9s step-end infinite;
+        }
+
+        @keyframes hero-cube-cursor-blink {
+            50% { opacity: 0; }
+        }
+
+        @keyframes hero-cube-spin {
+            0% { transform: rotateX(-14deg) rotateY(20deg); }
+            25% { transform: rotateX(-10deg) rotateY(110deg); }
+            50% { transform: rotateX(-20deg) rotateY(200deg); }
+            75% { transform: rotateX(-8deg) rotateY(290deg); }
+            100% { transform: rotateX(-14deg) rotateY(380deg); }
+        }
+
+        @keyframes hero-cube-pulse {
+            0%, 100% { opacity: 0.55; transform: scale(0.9); }
+            50% { opacity: 0.95; transform: scale(1.05); }
+        }
+
+        .hero-cube-scene:active { cursor: grabbing; }
+
+        .mobile-nav-panel {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(8, 8, 10, 0.94);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        @media (max-width: 639px) {
+            .hero-cube-scene {
+                width: 220px;
+                height: 220px;
+                perspective: 680px;
+            }
+
+            .hero-cube {
+                width: 150px;
+                height: 150px;
+            }
+
+            .hero-cube-face {
+                width: 150px;
+                height: 150px;
+            }
+
+            .hero-cube-face.front  { transform: translateZ(75.3px); }
+            .hero-cube-face.back   { transform: rotateY(180deg) translateZ(75.3px); }
+            .hero-cube-face.right  { transform: rotateY(90deg) translateZ(75.3px); }
+            .hero-cube-face.left   { transform: rotateY(-90deg) translateZ(75.3px); }
+            .hero-cube-face.top    { transform: rotateX(90deg) translateZ(75.3px); }
+            .hero-cube-face.bottom { transform: rotateX(-90deg) translateZ(75.3px); }
+
+
+            .hero-cube-glow {
+                width: 180px;
+                height: 180px;
+            }
+
+            .hero-cube-service-chip {
+                max-width: 145px;
+                font-size: 9px;
+                padding: 6px 9px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .hero-cube-wrap {
+                display: none !important;
+            }
+
+            .hero-section {
+                padding-top: 5.1rem;
+                padding-bottom: 2.4rem;
+            }
+
+            .hero-section h1 {
+                font-size: clamp(1.95rem, 8.3vw, 2.35rem);
+                line-height: 1.16;
+                margin-bottom: 0.9rem;
+            }
+
+            .hero-section p {
+                font-size: 0.9375rem;
+                line-height: 1.6;
+            }
+
+            .hero-section .hero-primary-btn,
+            .hero-section .hero-secondary-btn {
+                width: 100%;
+                font-size: 0.9375rem;
+                padding: 0.78rem 1rem;
+            }
+
+            .services-section {
+                padding-top: 2.75rem;
+                padding-bottom: 2.25rem;
+            }
+
+            .services-section .services-grid {
+                gap: 2.7rem;
+                padding-top: 1.1rem;
+            }
+
+            #services .service-card {
+                border-radius: 0.9rem;
+            }
+
+            #services .service-card-title {
+                font-size: 0.92rem;
+                line-height: 1.34;
+            }
+
+            #services .service-card-copy,
+            #services .service-card-list {
+                font-size: 0.79rem;
+                line-height: 1.58;
+            }
+
+            #services .service-card-price-value {
+                font-size: 0.77rem;
+            }
+
+            #services .service-card-cta {
+                font-size: 0.74rem;
+                letter-spacing: 0.035em;
+                padding-top: 0.58rem;
+                padding-bottom: 0.58rem;
+            }
+
+            #services .service-card-float {
+                width: 84px;
+                height: 84px;
+                top: -2.15rem;
+                right: -0.08rem;
+            }
+
+            #services .service-card-top {
+                padding-right: 4.7rem;
+            }
+
+            #services .service-card-inner {
+                padding-right: 4.35rem;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .hero-section {
+                padding-top: 4.9rem;
+            }
+
+            .hero-section h1 {
+                font-size: clamp(1.78rem, 8.7vw, 2.02rem);
+            }
+
+            .hero-section .hero-primary-btn,
+            .hero-section .hero-secondary-btn {
+                font-size: 0.9rem;
+                padding: 0.72rem 0.95rem;
+            }
+
+            .services-section .services-grid {
+                gap: 2.4rem;
+            }
+
+            #services .service-card {
+                padding: 1.35rem 1.1rem 1.2rem !important;
+            }
+
+            #services .service-card-title {
+                font-size: 0.875rem;
+            }
+
+            #services .service-card-index {
+                font-size: clamp(2.8rem, 15vw, 4.3rem);
+            }
+
+            #services .service-card-float {
+                width: 78px;
+                height: 78px;
+                top: -1.95rem;
+            }
+        }
+    </style>
+	
+	
+	 <!-- ========================================== -->
+    <!-- БЛОК 1: ШАПКА (NAV) -->
+    <!-- ========================================== -->
+    <nav class="fixed w-full z-40 glass-panel transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Логотип -->
+                <a href="/" class="flex items-center transition-transform hover:scale-105 duration-300">
+                    <img src="https://m-files.cdn1.cc/lpfile/0/d/7/0d702273b26e849c5984a2ba03676f88.gif" alt="Whitecube Logo" class="h-10 sm:h-12 w-auto object-contain">
+                </a>
+
+                <!-- Меню + соцсети (Десктоп) -->
+                <div class="hidden md:flex items-center gap-5">
+                    <a href="/" class="text-white/70 hover:text-white transition-colors flex items-center gap-1.5 text-sm font-medium">
+                        <i class="ph ph-house text-xl text-brandOrange"></i> Главная
+                    </a>
+                    <a href="/статьи" target="_blank" class="text-white/70 hover:text-white transition-colors flex items-center gap-1.5 text-sm font-medium">
+                        <i class="ph ph-book-open text-xl text-brandOrange"></i> Блог
+                    </a>
+                    <a href="https://t.me/whitecube_24" target="_blank" class="text-white/70 hover:text-white transition-colors flex items-center gap-1.5 text-sm font-medium">
+                        <i class="ph ph-telegram-logo text-xl text-blue-400"></i> Telegram
+                    </a>
+                    <button onclick="openPopup()" class="bg-brandOrange/90 hover:bg-brandOrange backdrop-blur-md text-white px-5 py-2 rounded-full font-bold text-sm transition-all transform hover:-translate-y-0.5 animate-echo-orange">
+                        Связаться
+                    </button>
+                </div>
+
+                <!-- Бургер меню (Мобилка) -->
+                <div class="md:hidden flex items-center gap-2">
+                    <button onclick="openPopup()" class="bg-brandOrange/90 text-white px-4 py-1.5 rounded-full font-bold text-xs animate-echo-orange mr-3">
+                        Связаться
+                    </button>
+                    <button
+                        id="mobile-menu-toggle"
+                        type="button"
+                        onclick="toggleMobileMenu()"
+                        class="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-white/20 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                        aria-label="Открыть меню"
+                        aria-controls="mobile-menu-panel"
+                        aria-expanded="false"
+                    >
+                        <i class="ph ph-list text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu-panel" class="mobile-nav-panel md:hidden hidden">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-2">
+                <a href="/" class="text-white/80 hover:text-white transition-colors flex items-center gap-2 py-2 text-sm font-medium" onclick="closeMobileMenu()">
+                    <i class="ph ph-house text-lg text-brandOrange"></i> Главная
+                </a>
+                <a href="/статьи" target="_blank" class="text-white/80 hover:text-white transition-colors flex items-center gap-2 py-2 text-sm font-medium" onclick="closeMobileMenu()">
+                    <i class="ph ph-book-open text-lg text-brandOrange"></i> Блог
+                </a>
+                <a href="https://t.me/whitecube_24" target="_blank" class="text-white/80 hover:text-white transition-colors flex items-center gap-2 py-2 text-sm font-medium" onclick="closeMobileMenu()">
+                    <i class="ph ph-telegram-logo text-lg text-blue-400"></i> Telegram
+                </a>
+            </div>
+        </div>
+    </nav>
+	
+	 <!-- ========================================== -->
+    <!-- БЛОК 2: HERO (ГЛАВНЫЙ ЭКРАН) -->
+    <!-- ========================================== -->
+    <!-- Изменен верхний отступ (pt-20 sm:pt-28) чтобы блок был ближе к шапке -->
+    <section class="hero-section relative pt-16 pb-10 sm:pt-20 sm:pb-20 overflow-hidden">
+        <!-- Световые акценты (мягкие блики) -->
+        <div class="absolute top-1/4 right-1/4 w-[300px] h-[300px] bg-brandOrange/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
+        <div class="absolute bottom-0 left-1/4 w-[250px] h-[250px] bg-brandGreen/10 rounded-full blur-[90px] pointer-events-none mix-blend-screen"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center lg:text-left lg:grid lg:grid-cols-2 items-center gap-10">
+                <div>
+                    <h1 class="font-unbounded font-extrabold text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.12] mb-4 sm:mb-5 text-white">
+                        Рекламное и IT агентство <span class="text-transparent bg-clip-text bg-gradient-to-r from-brandOrange to-yellow-400 drop-shadow-md">Whitecube</span>
+                    </h1>
+                    <div class="inline-flex bg-white/10 backdrop-blur-xl border border-white/20 py-2.5 px-5 rounded-full shadow-2xl animate-bounce mb-5 sm:mb-6">
+                        <p class="text-white font-bold text-xs tracking-wide inline-flex items-center gap-1.5">
+                            <span>Партнёр СДЭК</span>
+                            <i class="ph-fill ph-seal-check text-emerald-400 text-sm"></i>
+                        </p>
+                    </div>
+                    <p class="text-white/70 text-sm sm:text-lg mb-6 sm:mb-8 max-w-xl leading-relaxed font-light">
+                        Помогаем бизнесу расти через интеграции с маркетплейсами, контекстную рекламу и безупречный IT-сервис.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                        <a href="#services" class="hero-primary-btn w-full sm:w-auto px-7 py-3.5 text-white text-base text-center">
+                            Наши услуги
+                        </a>
+                        <button onclick="openPopup()" class="hero-secondary-btn glass-btn w-full sm:w-auto px-7 py-3.5 text-white text-base text-center">
+                            Бесплатный аудит
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-cube-wrap mt-7 sm:mt-10 lg:mt-0 relative flex justify-center lg:justify-end">
+                    <!-- Компактная стеклянная карточка Hero -->
+                    <div class="glass-card hero-cube-card rounded-[2rem] p-8 max-w-sm w-full flex flex-col items-center justify-center relative overflow-visible group">
+                        <div class="hero-cube-scene" id="hero-cube-scene">
+                            <div class="hero-cube-glow"></div>
+                            <div class="hero-cube" id="hero-cube" aria-hidden="true">
+                                <span class="hero-cube-face front"></span>
+                                <span class="hero-cube-face back"></span>
+                                <span class="hero-cube-face right"></span>
+                                <span class="hero-cube-face left"></span>
+                                <span class="hero-cube-face top"></span>
+                                <span class="hero-cube-face bottom"></span>
+                            </div>
+                            <div class="hero-cube-services" id="hero-cube-services" aria-hidden="true">
+                                <div class="hero-cube-service" data-face="right" style="--chip-left: 90%; --chip-top: 42%;">
+                                    <span class="hero-cube-service-line"></span>
+                                    <span class="hero-cube-service-chip"><span class="hero-cube-service-text"></span><span class="hero-cube-service-cursor"></span></span>
+                                </div>
+                                <div class="hero-cube-service" data-face="left" style="--chip-left: 10%; --chip-top: 42%;">
+                                    <span class="hero-cube-service-line"></span>
+                                    <span class="hero-cube-service-chip"><span class="hero-cube-service-text"></span><span class="hero-cube-service-cursor"></span></span>
+                                </div>
+                                <div class="hero-cube-service" data-face="top" style="--chip-left: 50%; --chip-top: 11%;">
+                                    <span class="hero-cube-service-line"></span>
+                                    <span class="hero-cube-service-chip"><span class="hero-cube-service-text"></span><span class="hero-cube-service-cursor"></span></span>
+                                </div>
+                                <div class="hero-cube-service" data-face="bottom" style="--chip-left: 50%; --chip-top: 89%;">
+                                    <span class="hero-cube-service-line"></span>
+                                    <span class="hero-cube-service-chip"><span class="hero-cube-service-text"></span><span class="hero-cube-service-cursor"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+	
+	    <!-- ========================================== -->
+    <!-- БЛОК 3: УСЛУГИ -->
+    <!-- ========================================== -->
+    <section id="services" class="services-section py-16 sm:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10 sm:mb-14 lg:flex lg:items-end lg:justify-between gap-6 text-center lg:text-left">
+                <div>
+                    <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-white/35 mb-3">Услуги</p>
+                    <h2 class="font-unbounded text-2xl sm:text-3xl md:text-[2.125rem] font-semibold text-white tracking-tight">Наши направления</h2>
+                </div>
+            </div>
+
+            <div class="services-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 sm:gap-x-7 lg:gap-x-8 gap-y-14 sm:gap-y-16 lg:gap-y-16 pt-10 sm:pt-12">
+                
+                <!-- Услуга 1: CDEK x OZON -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="green">
+                    <span class="service-card-index" aria-hidden="true">01</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/9/f/5/9f5d2cf3dcf05d9ee80c740c28f6bc93/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">Автоматизация</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Сервис интеграции CDEK × OZON</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 3 800 ₽ / мес</span>
+                        </div>
+                        <p class="service-card-copy">
+                            Автоматизация накладных между CDEK и Ozon: меньше ручной работы, больше времени на развитие бизнеса.
+                        </p>
+                        <a href="https://cdek-ozon.ru/" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 2: Запуск МП -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="pink-cyan">
+                    <span class="service-card-index" aria-hidden="true">02</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/c/3/8/c38e713212d3371aecc814f89bb7009f/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">Под ключ</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Запуск и ведение на Wildberries и Ozon</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 50 000 ₽</span>
+                        </div>
+                        <p class="service-card-copy">
+                            Выход на маркетплейсы с выстроенным процессом: без хаоса в операционке и лишних расходов на старте.
+                        </p>
+                        <a href="https://ozonwb.ru" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 3: Бухгалтерия -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="orange">
+                    <span class="service-card-index" aria-hidden="true">03</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/4/2/7/427bada853f2f44c4f8a9a8a7c898d8b/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">10+ лет на рынке</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Твоя бухгалтерия</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 10 000 ₽</span>
+                        </div>
+                        <ul class="service-card-list text-white/55 text-xs sm:text-[13px] leading-relaxed font-normal flex flex-col">
+                            <li class="flex items-start gap-2.5 py-2.5 border-b border-white/5">
+                                <i class="ph ph-arrow-right service-card-list-mark" aria-hidden="true"></i>
+                                <span>10 лет на рынке</span>
+                            </li>
+                            <li class="flex items-start gap-2.5 py-2.5 border-b border-white/5">
+                                <i class="ph ph-arrow-right service-card-list-mark" aria-hidden="true"></i>
+                                <span>Отчётность и налоги в ФНС</span>
+                            </li>
+                            <li class="flex items-start gap-2.5 pt-2.5">
+                                <i class="ph ph-arrow-right service-card-list-mark" aria-hidden="true"></i>
+                                <span>Оперативное решение вопросов</span>
+                            </li>
+                        </ul>
+                        <a href="https://твоя-бухгалтерия.рф/" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 4: Доставка из Китая -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="red-yellow">
+                    <span class="service-card-index" aria-hidden="true">04</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/f/0/a/f0a60d8be298dfaf7586daa40fd07231/-/crop/0x3x474x474/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">Логистика</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Выкуп и доставка товаров из Китая</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Формат</span>
+                            <span class="service-card-price-value">под запрос</span>
+                        </div>
+                        <p class="service-card-copy">
+                            Поиск производителя, проверка фабрики и партии, цена, логистика и таможня — единый контур сопровождения.
+                        </p>
+                        <a href="https://575cargo.ru/" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 5: Рейтинг -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="yellow">
+                    <span class="service-card-index" aria-hidden="true">05</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/3/6/a/36ad7c3eefedbd76956cd66f93d3558b/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">2ГИС</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Работа с рейтингом в интернете</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 10 000 ₽</span>
+                        </div>
+                        <p class="service-card-copy">
+                            Репутация в картах влияет на доверие. Повышаем оценку в 2ГИС в оговорённые сроки*.
+                        </p>
+                        <a href="https://белаякоробка.рф/rating" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 6: Яндекс Директ -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="yellow-white">
+                    <span class="service-card-index" aria-hidden="true">06</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/e/e/8/ee84c16833ad443bef109075f08ede17/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">Трафик</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Контекстная реклама в Яндексе</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 18 000 ₽ / мес</span>
+                        </div>
+                        <p class="service-card-copy">
+                            Настройка и сопровождение Директа: снижаем долю нецелевых кликов и выстраиваем управляемый CPL.
+                        </p>
+                        <a href="https://белаякоробка.рф/target" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 7: Создание сайтов -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="cyan-blue">
+                    <span class="service-card-index" aria-hidden="true">07</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/2/b/7/2b721cd30e876e69ee4e0f1072572c0b/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">UX / UI</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">Создание сайтов и дизайн</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 10 000 ₽</span>
+                        </div>
+                        <p class="service-card-copy">
+                            От лендинга до магазина: визуальный язык, структура и вёрстка под ваши цели и конкурентное поле.
+                        </p>
+                        <a href="https://riosite.ru/" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Услуга 8: HR -->
+                <div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="red-white">
+                    <span class="service-card-index" aria-hidden="true">08</span>
+                    <div class="service-card-float" aria-hidden="true">
+                        <img src="https://m-files.cdn1.cc/lpfile/b/4/c/b4c53ef8fb3ed455eaf68cbc06e02383/-/crop/0x0x474x480/-/resize/158/-/scale/x3/-/resize/1920/f.png" alt="">
+                    </div>
+                    <div class="service-card-top">
+                        <span class="service-card-tag">Аутсорс</span>
+                    </div>
+                    <div class="service-card-inner">
+                        <h3 class="service-card-title font-unbounded">HR-отдел под ключ</h3>
+                        <div class="service-card-price">
+                            <span class="service-card-price-label">Старт</span>
+                            <span class="service-card-price-value">от 10 000 ₽</span>
+                        </div>
+                        <p class="service-card-copy">
+                            Подбор, оформление и кадровый контур: вы получаете готовый HR-процесс без штата в штате.
+                        </p>
+                        <a href="https://интервуд.рф/" target="_blank" rel="noopener noreferrer" class="service-card-cta">
+                            Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+	
+	
+	
+	
+    <!-- ========================================== -->
+    <!-- БЛОК 4: ПОДВАЛ -->
+    <!-- ========================================== -->
+    <footer class="brand-footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-6 relative z-10">
+            <div class="footer-shell p-6 sm:p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-white/10">
+                    <span class="footer-chip">
+                        <span class="w-2 h-2 rounded-full bg-brandOrange pulse-dot"></span>
+                        WhiteCube Digital
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12 items-start pt-8">
+                <div>
+                    <a href="/" class="inline-flex items-center transition-transform duration-300 hover:scale-[1.02]">
+                        <img src="https://m-files.cdn1.cc/lpfile/0/d/7/0d702273b26e849c5984a2ba03676f88.gif?27162486" alt="WhiteCube" class="h-11 sm:h-14 w-auto object-contain">
+                    </a>
+                    <div class="text-white/35 text-sm leading-relaxed mt-4">
+                        ИП ЗОТОВ ИВАН ВЛАДИМИРОВИЧ<br>
+                        РС 40802810023260001962<br>
+                        ОГРНИП 319246800138804<br>
+                        ИНН 246113569495<br>
+                        БИК 0045004774
+                    </div>
+                    <button
+                        type="button"
+                        onclick="openPrivacyPopup()"
+                        class="policy-btn mt-6 w-full sm:w-auto text-white/90 hover:text-white rounded-xl px-6 py-3 text-sm font-medium transition-all hover:-translate-y-0.5"
+                    >
+                        Политика конфиденциальности
+                    </button>
+                </div>
+
+                <div>
+                    <h3 class="footer-title text-white/90 font-semibold text-lg mb-4">Меню сайта</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="https://cdek-ozon.ru/" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Сервис интеграции CDEK x OZON</a></li>
+                        <li><a href="https://ozonwb.ru/" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Запуск и ведение МП под ключ</a></li>
+                        <li><a href="https://575cargo.ru/" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Доставка товара из китая</a></li>
+                        <li><a href="https://белаякоробка.рф/rating" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Работа с рейтингом в интернете</a></li>
+                        <li><a href="https://белаякоробка.рф/target" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Контекстная реклама Яндекс</a></li>
+                        <li><a href="https://riosite.ru/" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Создание сайтов и дизайн</a></li>
+                        <li><a href="https://твоя-бухгалтерия.рф/" target="_blank" class="footer-link"><img src="https://m-files.cdn1.cc/lpfile/4/8/a/48a4ab05bfb51d2851440a9a8981970c.svg" alt="" class="footer-link-icon" width="16" height="16" aria-hidden="true"> Твоя -Бухгалтерия</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p id="footer-typewriter-wrap" class="footer-typewriter-wrap footer-title text-white/85 font-semibold text-xl sm:text-2xl leading-tight mb-3">
+                        <span id="footer-typewriter"></span><span class="footer-typewriter-cursor" aria-hidden="true"></span>
+                    </p>
+                    <p class="text-white/55 text-sm mb-6">
+                        Мы за детали, которые делают бренд узнаваемым.
+                    </p>
+                    <a
+                        href="https://белаякоробка.рф/статьи"
+                        target="_blank"
+                        class="blog-cta footer-title inline-flex items-center justify-center w-full rounded-xl px-6 py-3.5 text-white text-lg sm:text-xl font-semibold hover:bg-white/10 transition-all hover:-translate-y-0.5"
+                    >
+                        Читайте наш блог
+                    </a>
+                </div>
+            </div>
+            </div>
+            <div class="mt-8 pt-5 border-t border-white/10 text-center text-xs sm:text-sm text-white/40">
+                © <span id="footer-year">2026</span> WhiteCube. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <button
+        id="scroll-top-btn"
+        type="button"
+        class="scroll-top-btn"
+        aria-label="Наверх"
+        title="Наверх"
+    >
+        <i class="ph ph-caret-up" aria-hidden="true"></i>
+    </button>
+
+    <!-- Попап: Политика конфиденциальности -->
+    <div id="privacy-popup" class="fixed inset-0 z-[120] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closePrivacyPopup()"></div>
+        <div class="relative z-10 w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-white/20 bg-[#121212] shadow-2xl">
+            <div class="flex items-center justify-between px-5 sm:px-7 py-4 border-b border-white/10">
+                <h2 class="footer-title text-white text-base sm:text-lg font-semibold">Политика конфиденциальности</h2>
+                <button type="button" onclick="closePrivacyPopup()" class="text-white/70 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <div class="px-5 sm:px-7 py-5 overflow-y-auto max-h-[calc(85vh-70px)] text-white/80 text-sm leading-relaxed space-y-4">
+                <p>Настоящая Политика конфиденциальности регулирует порядок обработки и защиты персональных данных пользователей сайта белаякоробка.рф (далее — «Сайт»).</p>
+                <p>Мы уважаем право пользователей на конфиденциальность и прилагаем усилия для защиты предоставленных данных.</p>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">1. Какие данные мы собираем</p>
+                    <p>Мы можем собирать следующие категории данных:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>Персональные данные, которые пользователь добровольно предоставляет при заполнении форм на Сайте (имя, e-mail, телефон и пр.).</li>
+                        <li>Данные, автоматически передаваемые браузером при посещении Сайта: IP-адрес, cookies, информация о браузере, устройстве и времени доступа.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">2. Цели обработки данных</p>
+                    <p>Собранные данные могут использоваться для:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>обеспечения работы Сайта и предоставления доступа к его функциям;</li>
+                        <li>обратной связи с пользователем;</li>
+                        <li>рассылки уведомлений и новостей (при согласии пользователя);</li>
+                        <li>улучшения качества работы Сайта и анализа посещаемости.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">3. Передача данных третьим лицам</p>
+                    <p>Мы не передаем персональные данные третьим лицам, за исключением случаев, когда это необходимо:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>для выполнения требований законодательства;</li>
+                        <li>для защиты наших прав и законных интересов;</li>
+                        <li>для работы сервисов, обеспечивающих функционирование Сайта (хостинг, аналитика и др.), при условии соблюдения конфиденциальности.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">4. Использование файлов cookies</p>
+                    <p>Сайт может использовать cookies и аналогичные технологии для:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>корректного отображения страниц;</li>
+                        <li>анализа статистики посещений;</li>
+                        <li>улучшения качества сервиса. Пользователь может отключить использование cookies в настройках браузера.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">5. Защита данных</p>
+                    <p>Мы применяем необходимые организационные и технические меры для защиты персональной информации пользователей от несанкционированного доступа, изменения, раскрытия или уничтожения.</p>
+                </div>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">6. Права пользователя</p>
+                    <p>Пользователь имеет право:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>получать информацию о своих персональных данных, которые мы храним;</li>
+                        <li>требовать уточнения, блокировки или удаления своих персональных данных;</li>
+                        <li>отозвать согласие на обработку персональных данных.</li>
+                    </ul>
+                    <p class="mt-3">Для реализации этих прав можно связаться с нами по e-mail: <a href="mailto:manager@cdek-ozon.ru" class="text-brandOrange hover:underline">manager@cdek-ozon.ru</a></p>
+                </div>
+
+                <div>
+                    <p class="font-semibold text-white mb-2">7. Изменения политики конфиденциальности</p>
+                    <p>Мы можем время от времени обновлять настоящую Политику конфиденциальности. Актуальная версия всегда доступна на Сайте.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты интерфейса: оставлены внизу для стабильной инициализации в Lpmotor -->
+    <script>
+        // ===== Мобильное меню =====
+        function toggleMobileMenu() {
+            const panel = document.getElementById('mobile-menu-panel');
+            const toggle = document.getElementById('mobile-menu-toggle');
+            if (!panel || !toggle) return;
+            const isOpen = !panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', isOpen);
+            toggle.setAttribute('aria-expanded', String(!isOpen));
+        }
+
+        function closeMobileMenu() {
+            const panel = document.getElementById('mobile-menu-panel');
+            const toggle = document.getElementById('mobile-menu-toggle');
+            if (!panel || !toggle) return;
+            panel.classList.add('hidden');
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+
+        // Fallback для конструкторов (Lpmotor): явно экспортируем в window для inline onclick.
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.closeMobileMenu = closeMobileMenu;
+
+        // ===== Автопривязка обработчика мобильного меню =====
+        (function setupMobileMenu() {
+            function bindMenuHandlers() {
+                const panel = document.getElementById('mobile-menu-panel');
+                const toggle = document.getElementById('mobile-menu-toggle');
+                if (!panel || !toggle) return;
+
+                // Защита от повторной инициализации.
+                if (toggle.dataset.menuBound === '1') return;
+                toggle.dataset.menuBound = '1';
+
+                // Дублируем обработчик через addEventListener на случай,
+                // если inline onclick режется конструктором.
+                toggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    toggleMobileMenu();
+                });
+            }
+
+            // Прямое связывание.
+            bindMenuHandlers();
+
+            // Отложенное связывание, если конструктор перерисовывает DOM после загрузки.
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', bindMenuHandlers, { once: true });
+            } else {
+                setTimeout(bindMenuHandlers, 0);
+            }
+
+            // Делегирование клика как дополнительный fallback.
+            document.addEventListener('click', function (event) {
+                const target = event.target;
+                if (!(target instanceof Element)) return;
+                const button = target.closest('#mobile-menu-toggle');
+                if (!button) return;
+                event.preventDefault();
+                toggleMobileMenu();
+            });
+
+            const panel = document.getElementById('mobile-menu-panel');
+            const toggle = document.getElementById('mobile-menu-toggle');
+            if (!panel || !toggle) return;
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 768) {
+                    closeMobileMenu();
+                }
+            });
+        })();
+
+        // ===== Попап политики =====
+        function openPrivacyPopup() {
+            const popup = document.getElementById('privacy-popup');
+            if (!popup) return;
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+            document.body.classList.add('popup-open');
+        }
+
+        function closePrivacyPopup() {
+            const popup = document.getElementById('privacy-popup');
+            if (!popup) return;
+            popup.classList.add('hidden');
+            popup.classList.remove('flex');
+            document.body.classList.remove('popup-open');
+        }
+
+        // ===== Горячие клавиши (Esc) =====
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closePrivacyPopup();
+                closeMobileMenu();
+            }
+        });
+
+        // ===== Актуальный год в футере =====
+        const footerYear = document.getElementById('footer-year');
+        if (footerYear) {
+            footerYear.textContent = new Date().getFullYear();
+        }
+
+        // ===== Кнопка "Наверх" =====
+        (function setupScrollTopButton() {
+            const btn = document.getElementById('scroll-top-btn');
+            if (!btn) return;
+
+            const revealAt = 380;
+
+            function updateVisibility() {
+                if (window.scrollY > revealAt) {
+                    btn.classList.add('is-visible');
+                } else {
+                    btn.classList.remove('is-visible');
+                }
+            }
+
+            btn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            window.addEventListener('scroll', updateVisibility, { passive: true });
+            updateVisibility();
+        })();
+
+        // ===== Тайпрайтер в футере =====
+        (function setupFooterTypewriter() {
+            const el = document.getElementById('footer-typewriter');
+            const wrap = document.getElementById('footer-typewriter-wrap');
+            if (!el || !wrap) return;
+
+            const phrases = [
+                'Меньше услуг — больше внимания к деталям.',
+                'Мы за качество, а не за количество.',
+                'Мы делаем своё дело на 100%.',
+                'Меньше слов, больше дела.',
+                'Мы делаем качество приоритетом.',
+            ];
+
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function lockTypewriterHeight() {
+                const previous = el.textContent;
+                let maxH = 0;
+                for (let i = 0; i < phrases.length; i += 1) {
+                    el.textContent = phrases[i];
+                    maxH = Math.max(maxH, wrap.offsetHeight);
+                }
+                el.textContent = previous;
+                if (maxH > 0) {
+                    wrap.style.height = maxH + 'px';
+                }
+            }
+
+            let resizeTimer;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(lockTypewriterHeight, 150);
+            });
+
+            function boot() {
+                lockTypewriterHeight();
+                if (reduceMotion) {
+                    el.textContent = phrases[0];
+                    return;
+                }
+
+                const typeMs = 42;
+                const deleteMs = 28;
+                const holdAfterFullMs = 2400;
+                const holdAfterClearMs = 520;
+
+                let phraseIndex = 0;
+                let charIndex = 0;
+                let deleting = false;
+                let timeoutId;
+
+                function schedule(fn, ms) {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(fn, ms);
+                }
+
+                function tick() {
+                    const full = phrases[phraseIndex];
+                    if (!deleting) {
+                        if (charIndex < full.length) {
+                            charIndex += 1;
+                            el.textContent = full.slice(0, charIndex);
+                            schedule(tick, typeMs);
+                        } else {
+                            schedule(function () {
+                                deleting = true;
+                                tick();
+                            }, holdAfterFullMs);
+                        }
+                    } else if (charIndex > 0) {
+                        charIndex -= 1;
+                        el.textContent = full.slice(0, charIndex);
+                        schedule(tick, deleteMs);
+                    } else {
+                        deleting = false;
+                        phraseIndex = (phraseIndex + 1) % phrases.length;
+                        schedule(tick, holdAfterClearMs);
+                    }
+                }
+
+                tick();
+            }
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(boot);
+            } else {
+                boot();
+            }
+        })();
+
+        // ===== 3D-куб в hero-секции =====
+        (function setupDraggableHeroCube() {
+            const scene = document.getElementById('hero-cube-scene');
+            const cube = document.getElementById('hero-cube');
+            const servicesOverlay = document.getElementById('hero-cube-services');
+            if (!scene || !cube) return;
+
+            const baseX = -14;
+            const baseY = 20;
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let currentX = baseX;
+            let currentY = baseY;
+            let targetX = baseX;
+            let targetVelocityY = 0.18;
+            let velocityY = 0.18;
+            let nextRandomAt = performance.now() + 1800;
+            const servicesPool = [
+                'Сервис CDEK x OZON',
+                'Запуск и ведение МП',
+                'Контекстная реклама',
+                'Работа с рейтингом',
+                'Создание сайтов и дизайн',
+                'Доставка из Китая',
+                'Твоя-Бухгалтерия',
+                'HR-отдел под ключ',
+            ];
+            const connectorPoints = {
+                right: { x: 1, y: 0, z: 0 },
+                left: { x: -1, y: 0, z: 0 },
+                top: { x: 0, y: -1, z: 0 },
+                bottom: { x: 0, y: 1, z: 0 },
+            };
+            const serviceNodes = servicesOverlay ? Array.from(servicesOverlay.querySelectorAll('.hero-cube-service')) : [];
+
+            function renderCube(nowMs = performance.now()) {
+                cube.style.transform = `rotateX(${currentX}deg) rotateY(${currentY}deg)`;
+                updateServiceConnectors(currentX, currentY, nowMs);
+            }
+
+            function pickRandomService(exclude) {
+                if (servicesPool.length < 2) return servicesPool[0] || '';
+                let next = servicesPool[Math.floor(Math.random() * servicesPool.length)];
+                while (next === exclude) {
+                    next = servicesPool[Math.floor(Math.random() * servicesPool.length)];
+                }
+                return next;
+            }
+
+            function startTypewriter(textEl) {
+                if (!textEl) return;
+                let phrase = pickRandomService('');
+                let index = 0;
+                let deleting = false;
+
+                function tick() {
+                    if (!deleting) {
+                        index += 1;
+                        textEl.textContent = phrase.slice(0, index);
+                        if (index < phrase.length) {
+                            setTimeout(tick, 34 + Math.random() * 24);
+                        } else {
+                            setTimeout(function () {
+                                deleting = true;
+                                tick();
+                            }, 1700 + Math.random() * 900);
+                        }
+                    } else {
+                        index -= 1;
+                        textEl.textContent = phrase.slice(0, index);
+                        if (index > 0) {
+                            setTimeout(tick, 18 + Math.random() * 16);
+                        } else {
+                            phrase = pickRandomService(phrase);
+                            deleting = false;
+                            setTimeout(tick, 220 + Math.random() * 260);
+                        }
+                    }
+                }
+
+                tick();
+            }
+
+            function projectFaceCenter(face, rotateXDeg, rotateYDeg) {
+                const cubeHalf = cube.offsetWidth / 2;
+                const point = connectorPoints[face];
+                if (!point) return null;
+
+                const x = point.x * cubeHalf;
+                const y = point.y * cubeHalf;
+                const z = point.z * cubeHalf;
+
+                const rotateY = (rotateYDeg * Math.PI) / 180;
+                const rotateX = (rotateXDeg * Math.PI) / 180;
+                const cosY = Math.cos(rotateY);
+                const sinY = Math.sin(rotateY);
+                const cosX = Math.cos(rotateX);
+                const sinX = Math.sin(rotateX);
+
+                const x1 = x * cosY + z * sinY;
+                const z1 = -x * sinY + z * cosY;
+                const y2 = y * cosX - z1 * sinX;
+                const z2 = y * sinX + z1 * cosX;
+
+                const perspective = window.innerWidth <= 639 ? 680 : 1050;
+                const perspectiveFactor = perspective / (perspective - z2);
+                const sx = x1 * perspectiveFactor;
+                const sy = y2 * perspectiveFactor;
+
+                return {
+                    x: scene.clientWidth / 2 + sx,
+                    y: scene.clientHeight / 2 + sy,
+                };
+            }
+
+            function updateServiceConnectors(rotateXDeg, rotateYDeg, nowMs) {
+                if (!serviceNodes.length) return;
+
+                for (let i = 0; i < serviceNodes.length; i += 1) {
+                    const node = serviceNodes[i];
+                    const face = node.dataset.face;
+                    const anchor = projectFaceCenter(face, rotateXDeg, rotateYDeg);
+                    const line = node.querySelector('.hero-cube-service-line');
+                    const chip = node.querySelector('.hero-cube-service-chip');
+                    if (!anchor || !line || !chip) continue;
+
+                    const baseChipLeft = chip.offsetLeft + chip.offsetWidth / 2;
+                    const baseChipTop = chip.offsetTop + chip.offsetHeight / 2;
+                    const toAnchorX = anchor.x - baseChipLeft;
+                    const toAnchorY = anchor.y - baseChipTop;
+                    const toAnchorLen = Math.hypot(toAnchorX, toAnchorY) || 1;
+                    const dirX = toAnchorX / toAnchorLen;
+                    const dirY = toAnchorY / toAnchorLen;
+
+                    const floatPhase = nowMs * 0.0013 + i * 1.4;
+                    const towardSideProgress = (Math.sin(floatPhase) + 1) / 2;
+                    const towardSideDistance = 8 * towardSideProgress;
+                    const floatX = dirX * towardSideDistance;
+                    const floatY = dirY * towardSideDistance;
+                    chip.style.setProperty('--float-x', `${floatX}px`);
+                    chip.style.setProperty('--float-y', `${floatY}px`);
+
+                    const chipLeft = baseChipLeft + floatX;
+                    const chipTop = baseChipTop + floatY;
+                    const dx = chipLeft - anchor.x;
+                    const dy = chipTop - anchor.y;
+                    const distance = Math.hypot(dx, dy);
+                    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                    line.style.left = `${anchor.x}px`;
+                    line.style.top = `${anchor.y}px`;
+                    line.style.width = `${distance}px`;
+                    line.style.transform = `rotate(${angle}deg)`;
+                }
+            }
+
+            function onPointerMove(event) {
+                if (!isDragging) return;
+                const deltaX = event.clientX - startX;
+                const deltaY = event.clientY - startY;
+                currentY += deltaX * 0.35;
+                currentX -= deltaY * 0.35;
+                currentX = Math.max(-85, Math.min(85, currentX));
+                startX = event.clientX;
+                startY = event.clientY;
+                renderCube();
+            }
+
+            function stopDragging() {
+                if (!isDragging) return;
+                isDragging = false;
+                scene.style.cursor = 'grab';
+            }
+
+            scene.addEventListener('pointerdown', function (event) {
+                isDragging = true;
+                startX = event.clientX;
+                startY = event.clientY;
+                scene.style.cursor = 'grabbing';
+                scene.setPointerCapture(event.pointerId);
+                renderCube();
+            });
+
+            scene.addEventListener('pointermove', onPointerMove);
+            scene.addEventListener('pointerup', stopDragging);
+            scene.addEventListener('pointercancel', stopDragging);
+            scene.addEventListener('pointerleave', stopDragging);
+
+            function randomizeMotion(now) {
+                if (now < nextRandomAt) return;
+                nextRandomAt = now + 1600 + Math.random() * 2200;
+                targetX = baseX + (Math.random() * 24 - 12);
+                targetVelocityY = (Math.random() * 0.44) - 0.22;
+                if (Math.abs(targetVelocityY) < 0.08) {
+                    targetVelocityY = targetVelocityY < 0 ? -0.08 : 0.08;
+                }
+            }
+
+            function animateCube(now) {
+                if (!isDragging) {
+                    randomizeMotion(now);
+                    // Плавно стремимся к случайной "опорной" точке по X
+                    currentX += (targetX - currentX) * 0.03;
+                    // Плавно меняем скорость автокручения по Y
+                    velocityY += (targetVelocityY - velocityY) * 0.03;
+                    currentY += velocityY;
+                    renderCube(now);
+                }
+                requestAnimationFrame(animateCube);
+            }
+
+            for (let i = 0; i < serviceNodes.length; i += 1) {
+                startTypewriter(serviceNodes[i].querySelector('.hero-cube-service-text'));
+            }
+
+            renderCube();
+            requestAnimationFrame(animateCube);
+        })();
+    </script>
+
+	</body>
+	

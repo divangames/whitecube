@@ -1,0 +1,197 @@
+ <!-- ========================================== -->
+    <!-- ПОПАП ФОРМЫ (СКРЫТ ПО УМОЛЧАНИЮ) -->
+    <!-- ========================================== -->
+    <div id="contact-popup" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-md mx-4">
+            
+            <!-- Внутренняя карточка -->
+            <div id="contact-popup-content" class="bg-[#111111] border border-[#222] rounded-[1.5rem] p-8 md:p-10 relative overflow-hidden transform scale-95 transition-transform duration-300 shadow-2xl">
+                
+                <!-- Кнопка закрытия -->
+                <button onclick="closePopup()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors bg-[#222] hover:bg-[#333] rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+
+                <div class="relative z-10 text-center mt-2">
+                    <h2 class="font-unbounded text-2xl sm:text-3xl font-bold mb-3 text-white tracking-tight">Связаться</h2>
+                    <p class="text-white/60 text-sm mb-8 font-light">Оставьте заявку, и мы перезвоним в течение 30 минут.</p>
+                    
+                    <form id="tg-form-popup" class="grid grid-cols-1 gap-4 tg-form">
+                        <input type="text" placeholder="Ваше Имя" required 
+                            class="w-full custom-input">
+                        
+                        <input type="text" placeholder="Телефон или Telegram" required 
+                            class="w-full custom-input">
+                        
+                        <textarea placeholder="Какая услуга вас интересует?" 
+                            class="w-full custom-input resize-none"></textarea>
+                        
+                        <button type="submit" 
+                            class="w-full bg-[#FF5A00] hover:bg-[#e65100] text-white py-4 rounded-xl font-bold text-sm transition-all mt-2">
+                            Отправить заявку
+                        </button>
+                    </form>
+                    
+                    <div class="form-message hidden mt-6 text-sm font-medium p-3 rounded-lg border"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипт логики Попапа и отправки формы -->
+    <script>
+        // Элементы попапа
+        const popup = document.getElementById('contact-popup');
+        const popupContent = document.getElementById('contact-popup-content');
+        
+        // Открыть попап
+        function openPopup() {
+            document.body.classList.add('popup-open');
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+            // Небольшая задержка для срабатывания transition
+            setTimeout(() => {
+                popup.classList.remove('opacity-0');
+                popupContent.classList.remove('scale-95');
+                popupContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        // Закрыть попап
+        function closePopup() {
+            document.body.classList.remove('popup-open');
+            popup.classList.add('opacity-0');
+            popupContent.classList.remove('scale-100');
+            popupContent.classList.add('scale-95');
+            setTimeout(() => {
+                popup.classList.add('hidden');
+                popup.classList.remove('flex');
+            }, 300);
+        }
+
+        // Закрытие по клику вне карточки
+        popup.addEventListener('click', function(e) {
+            if (e.target === popup) {
+                closePopup();
+            }
+        });
+
+        // Закрытие по клавише Esc
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !popup.classList.contains('hidden')) {
+                closePopup();
+            }
+        });
+
+        // Отправка формы в Телеграм
+        // ВАЖНО: прямой вызов api.telegram.org из браузера может блокироваться сетью/провайдером.
+        // Для прод-стабильности рекомендуется серверный прокси (Cloudflare Worker / backend endpoint).
+        const forms = document.querySelectorAll('.tg-form');
+
+        // Если появится прокси, впишите URL сюда, например:
+        // const TG_PROXY_ENDPOINT = 'https://your-domain.com/api/tg-send';
+        // Тогда запрос пойдет через него, а не напрямую в Telegram API.
+        const TG_PROXY_ENDPOINT = '';
+
+        async function sendWithTimeout(url, options, timeoutMs = 10000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, { ...options, signal: controller.signal });
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        async function sendTelegramMessage(botToken, payload) {
+            const directUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const targetUrl = TG_PROXY_ENDPOINT || directUrl;
+
+            // Попытка №1
+            let response = await sendWithTimeout(targetUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }, 9000);
+
+            // Повторная попытка (полезно при кратковременных сетевых сбоях)
+            if (!response.ok) {
+                response = await sendWithTimeout(targetUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }, 12000);
+            }
+
+            return response;
+        }
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // === НАСТРОЙКИ БОТА ===
+                const BOT_TOKEN = '8625195404:AAE0_6ctNM16SZpHBCgi_Q8K9FVvQKyf65g'; 
+                const CHAT_ID = '-1002339298151'; 
+                // ===============================
+
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const formMessage = form.nextElementSibling; // div с сообщением сразу после формы
+                const inputs = form.querySelectorAll('input, textarea');
+                
+                // Экранируем спецсимволы, чтобы они не ломали разметку Telegram
+                const escapeHtml = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                
+                const name = escapeHtml(inputs[0].value.trim());
+                const contact = escapeHtml(inputs[1].value.trim());
+                const task = escapeHtml(inputs[2].value.trim());
+
+                submitBtn.disabled = true;
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.textContent = 'Отправка...';
+
+                const device = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? '📱 Смартфон' : '💻 Десктоп';
+                
+                // Используем HTML-разметку
+                const text = `🚀 <b>Новая заявка Whitecube</b>\n\n👤 <b>Имя:</b> ${name}\n📞 <b>Контакт:</b> ${contact}\n📝 <b>Задача:</b> ${task}\n\n🖥 <b>Устройство:</b> ${device}\n✅ <b>Источник:</b> белаякоробка.рф`;
+
+                try {
+                    const response = await sendTelegramMessage(BOT_TOKEN, {
+                        chat_id: CHAT_ID,
+                        text: text,
+                        parse_mode: 'HTML'
+                    });
+
+                    if (response.ok) {
+                        formMessage.textContent = '✅ Спасибо! Мы скоро свяжемся с вами.';
+                        formMessage.classList.remove('hidden', 'bg-[#2A1111]', 'border-red-500/30', 'text-red-300');
+                        formMessage.classList.add('bg-[#112A18]', 'border-green-500/30', 'text-green-400');
+                        form.reset();
+                        
+                        // Если форма в попапе, закрываем его через 3 секунды
+                        if (form.id === 'tg-form-popup') {
+                            setTimeout(() => {
+                                closePopup();
+                                formMessage.classList.add('hidden');
+                            }, 3000);
+                        } else {
+                            setTimeout(() => formMessage.classList.add('hidden'), 5000);
+                        }
+
+                    } else {
+                        throw new Error(`Ошибка API: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    formMessage.innerHTML = '❌ Не удалось отправить форму (таймаут сети).<br>Напишите нам в Telegram: <a href="https://t.me/whitecube_24" target="_blank" rel="noopener noreferrer" class="underline">t.me/whitecube_24</a>';
+                    formMessage.classList.remove('hidden', 'bg-[#112A18]', 'border-green-500/30', 'text-green-400');
+                    formMessage.classList.add('bg-[#2A1111]', 'border-red-500/30', 'text-red-300');
+                    
+                    setTimeout(() => formMessage.classList.add('hidden'), 9000);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalBtnText;
+                }
+            });
+        });
+    </script>
