@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100px" height="100px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 10.2 10.2"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .fil4 {fill:none;fill-rule:nonzero}
+    .fil1 {fill:#A1A6A9;fill-rule:nonzero}
+    .fil2 {fill:#DFDFDF;fill-rule:nonzero}
+    .fil3 {fill:white;fill-rule:nonzero}
+    .fil0 {fill:url(#id1);fill-rule:nonzero}
+   ]]>
+  </style>
+   <clipPath id="id0" style="clip-rule:nonzero">
+    <path d="M1.59 0l7.02 0c0.88,0 1.59,0.71 1.59,1.59l0 7.02c0,0.88 -0.71,1.59 -1.59,1.59l-7.02 0c-0.88,0 -1.59,-0.71 -1.59,-1.59l0 -7.02c0,-0.88 0.71,-1.59 1.59,-1.59z"/>
+   </clipPath>
+  <linearGradient id="id1" gradientUnits="userSpaceOnUse" x1="5.1" y1="-7.33" x2="1.91" y2="12.12">
+   <stop offset="0" style="stop-opacity:1; stop-color:#27E7EA"/>
+   <stop offset="1" style="stop-opacity:1; stop-color:#1B6BBA"/>
+  </linearGradient>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g>
+  </g>
+  <g style="clip-path:url(#id0)">
+   <g id="_2817968291200">
+    <path class="fil0" d="M1.59 0l7.02 0c0.88,0 1.59,0.71 1.59,1.59l0 7.02c0,0.88 -0.71,1.59 -1.59,1.59l-7.02 0c-0.88,0 -1.59,-0.71 -1.59,-1.59l0 -7.02c0,-0.88 0.71,-1.59 1.59,-1.59z"/>
+    <polygon class="fil1" points="11.01,2.05 5.87,5.95 8.02,10.47 12.08,9.92 "/>
+    <polygon class="fil2" points="5.87,5.95 1.84,6.26 3.93,10.6 7.94,10.2 "/>
+    <polygon class="fil3" points="6.88,2.43 1.84,6.26 5.87,5.95 11.3,1.84 "/>
+   </g>
+  </g>
+  <path class="fil4" d="M1.59 0l7.02 0c0.88,0 1.59,0.71 1.59,1.59l0 7.02c0,0.88 -0.71,1.59 -1.59,1.59l-7.02 0c-0.88,0 -1.59,-0.71 -1.59,-1.59l0 -7.02c0,-0.88 0.71,-1.59 1.59,-1.59z"/>
+ </g>
+</svg>

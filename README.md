@@ -1,132 +1,147 @@
-# Инструкция: карточки услуг и кастомизация
+# WhiteCube — сайт агентства
 
-Этот файл — источник правды по блоку услуг в `index.html`.
-Если в коде блока услуг что-то меняется, этот файл нужно обновлять в том же изменении.
+Корпоративный сайт агентства полного цикла **Белая Коробка** / **White Cube**.
 
-## Где находится блок
+**Живой сайт:** [w-cube.ru](https://w-cube.ru)
 
-- HTML секция: `#services` в `index.html`
-- Основные CSS-правила карточек: селекторы `#services .service-card*` в верхнем `<style>`
+---
 
-## Быстрый чек-лист добавления новой карточки
+## Стек
 
-1. Скопируйте существующую карточку внутри сетки `services-grid`.
-2. Обновите индекс (например, `09`) в `.service-card-index`.
-3. Задайте акцент через `data-hover="..."` на корневом `div.service-card`.
-4. Подставьте иконку в `.service-card-float img`.
-5. Заполните:
-   - `.service-card-tag`
-   - `.service-card-title`
-   - `.service-card-price-label` / `.service-card-price-value`
-   - описание (`.service-card-copy`) или список (`.service-card-list`)
-   - кнопку/ссылку `.service-card-cta`
+| Слой | Технология |
+|------|-----------|
+| Фреймворк | React 18 + TypeScript |
+| Сборщик | Vite |
+| Стили | Tailwind CSS |
+| Анимации | Framer Motion |
+| Роутинг | React Router v6 |
+| Шейдеры | @paper-design/shaders-react |
+| Иконки | Lucide React |
 
-## Шаблон карточки
+---
 
-```html
-<div class="glass-card service-card px-5 py-6 sm:px-7 sm:py-8 flex flex-col h-full group relative" data-hover="green">
-  <span class="service-card-index" aria-hidden="true">09</span>
-  <div class="service-card-float" aria-hidden="true">
-    <img src="URL_ИКОНКИ" alt="">
-  </div>
-  <div class="service-card-top">
-    <span class="service-card-tag">Категория</span>
-  </div>
-  <div class="service-card-inner">
-    <h3 class="service-card-title font-unbounded">Название услуги</h3>
-    <div class="service-card-price">
-      <span class="service-card-price-label">Старт</span>
-      <span class="service-card-price-value">от 10 000 ₽</span>
-    </div>
-    <p class="service-card-copy">Короткое описание услуги.</p>
-    <a href="#" target="_blank" rel="noopener noreferrer" class="service-card-cta">
-      Подробнее <i class="ph ph-arrow-right" aria-hidden="true"></i>
-    </a>
-  </div>
-</div>
+## Быстрый старт
+
+```bash
+# Установить зависимости
+npm install
+
+# Запустить dev-сервер (или двойной клик на start.bat)
+npm run dev
 ```
 
-## Акценты `data-hover`
+Сайт откроется на `http://localhost:5173`
 
-Карточки используют акцентные переменные:
+### Переменные окружения
 
-- `--svc-accent-1`
-- `--svc-accent-2`
+Создайте `.env` в корне проекта:
 
-Они влияют на:
-
-- hover-контур карточки (анимационный градиент по периметру),
-- цвет тега,
-- левую линию цены,
-- hover-стиль кнопки.
-
-Текущие пресеты:
-
-- `green`
-- `pink-cyan`
-- `orange`
-- `red-yellow`
-- `yellow`
-- `yellow-white`
-- `cyan-blue`
-- `red-white`
-
-## Как добавить новый цветовой пресет
-
-В CSS рядом с другими пресетами добавьте:
-
-```css
-#services .service-card[data-hover="violet-lime"] {
-  --svc-accent-1: #a855f7;
-  --svc-accent-2: #84cc16;
-  --svc-accent-rgb: 168, 85, 247;
-}
+```env
+VITE_TELEGRAM_BOT_TOKEN=ваш_токен
+VITE_TELEGRAM_CHAT_ID=ваш_chat_id
 ```
 
-И затем поставьте карточке:
+---
 
-```html
-data-hover="violet-lime"
+## Сборка для деплоя
+
+Двойной клик на **`build-for-deploy.bat`** — создаст папку `deploy/` и архив `deploy.zip`.
+
+Содержимое `deploy/` заливайте в корень сайта на хостинге.
+
+**Apache** — `.htaccess` генерируется автоматически (нужен для роутинга `/privacy`, `/terms`).  
+**Nginx** — добавьте в server-блок:
+```nginx
+location / { try_files $uri $uri/ /index.html; }
 ```
 
-## Анимация контура (важно)
+Форма заявок отправляет через `/php/send.php` — на хостинге должен быть PHP.
 
-Сейчас анимируется только **градиент контура** на `hover`.
-Сам контур не вращается как слой.
+### GitHub Pages
 
-Ключевые части:
+Превью: https://divangames.github.io/whitecube/
 
-- `#services .service-card::after` — рисует контур через `conic-gradient` + `mask`
-- `@property --svc-border-angle` — анимируемый угол градиента
-- `#services .service-card:hover::after` — включает анимацию
-- `@keyframes service-accent-spin` — меняет `--svc-border-angle` от `0deg` до `360deg`
+Публикация из `main` настроена в `.github/workflows/pages.yml`.
+Сборка использует базовый путь `/whitecube/`. PHP-файлы исключены из артефакта Pages.
+Для PHP-хостинга задайте `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID` через переменные окружения сервера.
 
-## Список в карточке «Твоя бухгалтерия»
+### GitVerse Pages
 
-В списке используются иконки:
+Превью из ветки `main` публикуется workflow `.gitverse/workflows/pages.yml`.
 
-```html
-<i class="ph ph-arrow-right service-card-list-mark" aria-hidden="true"></i>
+Адрес: [https://delbraun.gitverse.site/WhiteCube](https://delbraun.gitverse.site/WhiteCube)
+
+Один раз в репозитории: **Настройки → Страницы** → включить Pages → источник **Воркфлоу**. Репозиторий должен быть публичным, CI/CD включён.
+
+Форма заявок на Pages не работает (нет PHP) — для заявок используйте боевой хостинг [w-cube.ru](https://w-cube.ru).
+
+---
+
+## Структура проекта
+
+```
+src/
+├── components/       # UI-компоненты
+│   ├── Hero.tsx      # Главный экран + счётчики
+│   ├── Services.tsx  # Карточки продуктов и сетка услуг
+│   ├── services/     # Карточка «Продвижение в ИИ»
+│   ├── Reviews.tsx   # Виджет отзывов (2ГИС + Яндекс.Карты)
+│   ├── Contact.tsx   # Форма заявки
+│   ├── Navbar.tsx    # Шапка
+│   └── Footer.tsx    # Подвал
+├── pages/
+│   ├── PrivacyPolicy.tsx   # /privacy
+│   └── TermsOfService.tsx  # /terms
+├── data/
+│   └── reviews.json  # Отзывы (обновляются парсером)
+├── types/            # Типы карточек услуг и др.
+├── context/          # PerfTierContext
+└── lib/              # Утилиты
+
+scripts/
+└── fetch-reviews.mjs # Парсер отзывов
 ```
 
-Цвет стрелок:
+---
 
-- `#f74200` (задаётся в `.service-card-list-mark`)
+## Обновление отзывов
 
-## Вынесенная иконка и индекс
+Двойной клик на **`update-reviews.bat`** — откроет браузер, соберёт свежие отзывы с **2ГИС** и **Яндекс.Карт** и сохранит в `src/data/reviews.json`.
 
-- Вынесенная иконка карточки: `.service-card-float`
-- Индекс фоном внутри карточки: `.service-card-index`
+Источники настраиваются в `scripts/fetch-reviews.mjs`:
 
-Если иконка/индекс начинают пересекаться с текстом:
+```js
+const FIRMS = [
+  { name: 'Твоя Бухгалтерия', gis_id: '...', gis_url: '...', ya_url: '...' },
+  // ...
+]
+```
 
-1. сначала корректируйте `padding-right` у `.service-card-top` и `.service-card-inner`,
-2. потом размеры/позицию `.service-card-float`,
-3. затем размер/позицию `.service-card-index`.
+---
 
-## Правило поддержки
+## Страницы
 
-При любом изменении блока услуг в `index.html`:
+| Путь | Описание |
+|------|----------|
+| `/` | Главная |
+| `/privacy` | Политика конфиденциальности |
+| `/terms` | Условия соглашения |
 
-1. обновить этот файл;
-2. проверить, что названия классов/атрибутов и поведение совпадают с кодом.
+---
+
+## Производительность
+
+Сайт автоматически подстраивается под устройство посетителя:
+
+- **full** — все эффекты и анимации
+- **reduced** — облегчённые анимации
+- **minimal** — только статика
+
+Логика: `src/context/PerfTierContext.tsx`
+
+---
+
+## Контакты
+
+**Email:** manager@cdek-ozon.ru  
+**ИП Зотов Иван Владимирович** · ОГРНИП 319246800138804 · ИНН 246113569495

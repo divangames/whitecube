@@ -1,0 +1,9 @@
+node_modules
+dist
+deploy
+deploy.zip
+.env
+.env.local
+*.local
+scripts/debug*.png
+scripts/debug*.mjs

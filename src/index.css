@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: #0B0B0B;
+    color: #F0EDE6;
+    overflow-x: hidden;
+  }
+  ::selection { background: #22b7d855; color: #F0EDE6; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #0B0B0B; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #22b7d8; }
+}
+
+@layer components {
+  .service-card-title {
+    @apply font-display text-xl font-bold leading-tight;
+  }
+  .service-card-copy {
+    @apply text-sm leading-relaxed;
+  }
+  .service-card-price {
+    @apply inline-flex w-fit max-w-full items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold;
+    border-color: color-mix(in srgb, currentColor 35%, transparent);
+    background-color: color-mix(in srgb, currentColor 15%, transparent);
+  }
+  .service-card-tag {
+    @apply text-sm;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  @keyframes border-beam { 100% { offset-distance: 100%; } }
+
+  @keyframes ruble-shine {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .ruble-char {
+    background: linear-gradient(105deg, #ff8c40 35%, #ffe0b0 48%, #fff 52%, #ffe0b0 56%, #ff8c40 65%);
+    background-size: 300% auto;
+    background-position: -200% center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: brightness(1.15);
+  }
+  .group:hover .ruble-char {
+    animation: ruble-shine 3.5s linear infinite;
+  }
+
+  @keyframes ai-dot {
+    0%, 80%, 100% { opacity: 0.28; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-2px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    @keyframes ai-dot {
+      0%, 100% { opacity: 0.7; transform: none; }
+    }
+  }
+
+  @keyframes atlas-drift {
+    0%   { transform: translateX(0) translateY(0); }
+    25%  { transform: translateX(6px) translateY(-4px); }
+    50%  { transform: translateX(0px) translateY(6px); }
+    75%  { transform: translateX(-6px) translateY(-3px); }
+    100% { transform: translateX(0) translateY(0); }
+  }
+  @keyframes atlas-drift2 {
+    0%   { transform: translateX(0) translateY(0); }
+    33%  { transform: translateX(-8px) translateY(5px); }
+    66%  { transform: translateX(5px) translateY(-6px); }
+    100% { transform: translateX(0) translateY(0); }
+  }
+
+  @keyframes marquee-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes tg-plane-loop {
+    /* пауза в стартовой точке */
+    0%   { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 1;
+           animation-timing-function: linear; }
+    8%   { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 1;
+           animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+    /* откат назад — одно плавное движение */
+    16%  { transform: translate3d(-22px, 14px, 0) rotate(-18deg) scale(0.95); opacity: 1;
+           animation-timing-function: cubic-bezier(0.45, 0, 0.75, 0.25); }
+    /* разгон и улёт за рамку */
+    46%  { transform: translate3d(220px, -240px, 0) rotate(32deg) scale(1.45); opacity: 0;
+           animation-timing-function: step-end; }
+    /* мгновенный телепорт вниз, остаёмся невидимыми */
+    47%  { transform: translate3d(0, 110px, 0) rotate(-8deg) scale(0.92); opacity: 0;
+           animation-timing-function: linear; }
+    /* пауза снизу, пока самолётик «не виден» */
+    60%  { transform: translate3d(0, 110px, 0) rotate(-8deg) scale(0.92); opacity: 0;
+           animation-timing-function: cubic-bezier(0.2, 0.8, 0.25, 1); }
+    /* мягкое появление снизу обратно в исходную точку */
+    78%  { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 1;
+           animation-timing-function: linear; }
+    /* пауза в стартовой точке перед следующим запуском */
+    100% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 1; }
+  }
+  .group:hover .tg-plane {
+    animation: tg-plane-loop 4.8s linear infinite both;
+  }
+
+  /* === Liquid aurora (white) — фон для карточки сервиса === */
+  @keyframes liquid-morph {
+    0%   { transform: rotate(0deg) scale(1);   border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    50%  { transform: rotate(180deg) scale(1.1); border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%; }
+    100% { transform: rotate(360deg) scale(1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  }
+  .liquid-aurora-card {
+    background-color: #ffffff;
+    overflow: hidden;
+    isolation: isolate;
+    contain: layout paint;
+    --mx: 0;
+    --my: 0;
+  }
+  /* обёртка-позиционер: смещается от курсора */
+  .liquid-aurora-card .liquid-shape-pos {
+    position: absolute;
+    pointer-events: none;
+    transition: transform 0.5s cubic-bezier(.22,.8,.2,1);
+  }
+  /* собственно пятно: морфит и крутится внутри обёртки */
+  .liquid-aurora-card .liquid-shape {
+    width: 100%; height: 100%;
+    /* blur(30px) вместо 50px — на GPU экономит ~2× (стоимость blur ~ O(r²)) */
+    filter: blur(30px) saturate(1.15);
+    opacity: 1;
+    animation: liquid-morph 14s ease-in-out infinite;
+  }
+  /* Пауза анимации, когда карточка не видна (ставится JS-ом через IntersectionObserver) */
+  .liquid-aurora-card.is-paused .liquid-shape {
+    animation-play-state: paused;
+  }
+  /* Слабое железо: без морфинга и с чуть лёгким blur */
+  .liquid-aurora-card.liquid-aurora-lite .liquid-shape {
+    animation: none;
+    filter: blur(22px) saturate(1.08);
+  }
+  .liquid-aurora-card.liquid-aurora-lite .liquid-shape-pos {
+    transition: none;
+  }
+  /* голубой — top-right (большой, тяжёлый — толкается слабо) */
+  .liquid-aurora-card .shape-1 {
+    width: 65%; height: 65%;
+    top: -15%; right: -10%;
+    transform: translate(calc(var(--mx) * -32px), calc(var(--my) * -32px));
+  }
+  .liquid-aurora-card .shape-1 .liquid-shape {
+    background: radial-gradient(circle at 50% 50%, #30baff 0%, #30baff 45%, transparent 75%);
+    animation-duration: 16s;
+  }
+  /* зелёный — bottom-left (самый большой) */
+  .liquid-aurora-card .shape-2 {
+    width: 75%; height: 75%;
+    bottom: -20%; left: -15%;
+    transform: translate(calc(var(--mx) * -28px), calc(var(--my) * -28px));
+  }
+  .liquid-aurora-card .shape-2 .liquid-shape {
+    background: radial-gradient(circle at 50% 50%, #04f592 0%, #04f592 45%, transparent 75%);
+    animation-duration: 18s;
+    animation-direction: reverse;
+  }
+  /* розово-красный — bottom-right (средний — толкается сильнее) */
+  .liquid-aurora-card .shape-3 {
+    width: 45%; height: 45%;
+    bottom: -5%; right: 5%;
+    transform: translate(calc(var(--mx) * -50px), calc(var(--my) * -50px));
+  }
+  .liquid-aurora-card .shape-3 .liquid-shape {
+    background: radial-gradient(circle at 50% 50%, #ff6474 0%, #ff6474 45%, transparent 75%);
+    animation-duration: 20s;
+  }
+  /* фиолетовый — top-left, маленький (отлетает сильнее всех) */
+  .liquid-aurora-card .shape-4 {
+    width: 32%; height: 32%;
+    top: 5%; left: 18%;
+    transform: translate(calc(var(--mx) * -65px), calc(var(--my) * -65px));
+  }
+  .liquid-aurora-card .shape-4 .liquid-shape {
+    background: radial-gradient(circle at 50% 50%, #aa7def 0%, #aa7def 45%, transparent 75%);
+    animation-duration: 22s;
+    animation-direction: reverse;
+  }
+
+  /* Уважаем системную настройку «уменьшить движение»: гасим все CSS-анимации
+     и плавный скролл. JS-канвас и Framer Motion реагируют через usePrefersReducedMotion. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
